@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.fasterxml.jackson.jr.ob.JSON;
@@ -14,11 +15,16 @@ public class Model {
 	public ArrayList<Broker> brokers;
 	public Integer controllerId;
 
+	public ArrayList<Topic> topics;
+
+	
 	static YamlConfig yamlConfig = new YamlConfig();
 	static {
 		yamlConfig.writeConfig.setWriteRootTags(false);
 		yamlConfig.writeConfig.setWriteRootElementTags(false);
 		yamlConfig.setPropertyElementType(Model.class, "brokers", Broker.class);
+		yamlConfig.setPropertyElementType(Model.class, "topics", Topic.class);
+		yamlConfig.setPropertyElementType(Topic.class, "partitions", Topic.Partition.class);
 	}
 	static JSON djson = JSON.std.with(Feature.PRETTY_PRINT_OUTPUT);
 
@@ -92,11 +98,67 @@ public class Model {
 		public String getRack() {
 			return rack;
 		}
+	}
+
+	
+	public static class Topic {
+		public String name;
+		public Integer replicationFactor;
+		public Integer partitionFactor;
+		public Properties properties;
+		public Boolean deleted;
+		public ArrayList<Partition> partitions = new ArrayList<Partition>();
 		
+		public static class Partition {
+			public Integer id;
+			public Integer leader;
+			public ArrayList<Integer> replicas;
+			public ArrayList<Integer> inSyncReplica;
+			public ArrayList<Integer> unsyncReplica;
+			public Integer getId() {
+				return id;
+			}
+			public Integer getLeader() {
+				return leader;
+			}
+			public ArrayList<Integer> getReplicas() {
+				return replicas;
+			}
+			public ArrayList<Integer> getInSyncReplica() {
+				return inSyncReplica;
+			}
+			public ArrayList<Integer> getUnsyncReplica() {
+				return unsyncReplica;
+			}
+			
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public Integer getReplicationFactor() {
+			return replicationFactor;
+		}
+
+		public Integer getPartitionFactor() {
+			return partitionFactor;
+		}
+
+		public Properties getProperties() {
+			return properties;
+		}
+
+		public Boolean getDeleted() {
+			return deleted;
+		}
+
+		public ArrayList<Partition> getPartitions() {
+			return partitions;
+		}
 		
 		
 	}
-
 
 	public ArrayList<Broker> getBrokers() {
 		return brokers;
@@ -104,6 +166,10 @@ public class Model {
 
 	public Integer getControllerId() {
 		return controllerId;
+	}
+
+	public ArrayList<Topic> getTopics() {
+		return topics;
 	}
 
 }
