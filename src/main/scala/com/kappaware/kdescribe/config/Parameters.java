@@ -34,6 +34,7 @@ public class Parameters {
 
 	private String zookeeper;
 	private OutputFormat outputFormat;
+	private boolean includeAll;
 	
 	static OptionParser parser = new OptionParser();
 	static {
@@ -42,6 +43,7 @@ public class Parameters {
 
 	static OptionSpec<String> ZOOKEEPER_OPT = parser.accepts("zookeeper", "Comma separated values of Zookeeper nodes").withRequiredArg().describedAs("zk1:2181,ek2:2181").ofType(String.class).required();
 	static OptionSpec<OutputFormat> OUTPUT_FORMAT_OPT = parser.accepts("outputFormat", "Output format").withRequiredArg().describedAs("json|yaml").ofType(OutputFormat.class).defaultsTo(OutputFormat.yaml);
+	static OptionSpec<Void> INCLUDE_ALL_OPT = parser.accepts("includeAll", "All topics, including systems ones");
 
 	@SuppressWarnings("serial")
 	private static class MyOptionException extends Exception {
@@ -61,6 +63,7 @@ public class Parameters {
 			// Mandatories parameters
 			this.zookeeper = result.valueOf(ZOOKEEPER_OPT);
 			this.outputFormat = result.valueOf(OUTPUT_FORMAT_OPT);
+			this.includeAll = result.has(INCLUDE_ALL_OPT);
 
 		} catch (OptionException | MyOptionException t) {
 			throw new ConfigurationException(usage(t.getMessage()));
@@ -90,6 +93,10 @@ public class Parameters {
 
 	public OutputFormat getOutputFormat() {
 		return outputFormat;
+	}
+
+	public boolean isIncludeAll() {
+		return includeAll;
 	}
 
 

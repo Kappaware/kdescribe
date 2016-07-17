@@ -14,7 +14,12 @@
  * limitations under the License.
  */
  
-defaultTasks 'fatJar'
+
+plugins {
+  id 'nebula.ospackage' version '3.4.0'
+}
+ 
+defaultTasks 'rpm'
  
 
 group = 'com.kappaware.kdescribe'
@@ -76,6 +81,31 @@ task run_main(type: JavaExec) {
 	if ( project.hasProperty("runArgs") ) {
 		args Eval.me(runArgs)	
 	}
+}
+
+task rpm(type: Rpm) {
+	summary 'Kafka current config description'
+	packageName 'kdescribe'
+	version versionForRpm
+	arch NOARCH
+	vendor 'BROADSoftware'
+	license 'Apache 2.0'
+	os LINUX
+	release '1'
+	packageDescription 'kdescribe is a small tools to display Kafka brokers and topics state.'
+    
+   	from(fatJar.outputs.files) {
+	    into '/opt/kdescribe'
+	    user 'root'
+		group 'root'
+		//rename "${fatJarBaseName}(.+).jar", "${fatJarBaseName}.jar"
+	    fileMode 0644
+    }
+    
+   	from('scripts/packages/kdescribe') { into '/usr/bin'; user 'root'; group 'root'; fileMode 0755  }
+   	from('scripts/packages/log4j.xml') { into '/etc/kdescribe'; user 'root'; group 'root'; fileMode 0644  }
+   	from('scripts/packages/setenv.sh') { into '/etc/kdescribe'; user 'root'; group 'root'; fileMode 0644    }
+    
 }
 
 
