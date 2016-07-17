@@ -34,7 +34,7 @@ This role can be used as following;
 	
 	- hosts: cmd_node
 	  vars:
-        kdescribe_rpm_url: https://github.com/Kappaware/jdctopic/releases/download/v0.1.0/kdescribe-0.1.0-1.noarch.rpm
+        kdescribe_rpm_url: https://github.com/Kappaware/kdescribe/releases/download/v0.1.0/kdescribe-0.1.0-1.noarch.rpm
 	  roles:
 	  - kappatools/kdescribe
 	  
