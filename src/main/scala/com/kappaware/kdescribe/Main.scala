@@ -30,6 +30,7 @@ object Main {
     try {
       val config: Configuration = new ConfigurationImpl(new Parameters(args))
       val model = Engine.run(config)
+      StartEndSetter.enrich(model)
       
       val out = config.getOutputFormat match {
         case OutputFormat.json => model.toJson

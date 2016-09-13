@@ -67,9 +67,9 @@ public class Model {
 			m = JSON.std.mapFrom(jsonString);
 			this.version = (Integer) m.get("version");
 			this.host = (String) m.get("host");
-			this.port = (Integer) m.get(port);
+			this.port = (Integer) m.get("port");
 			this.jmx_port = (Integer) m.get("jmx_port");
-			this.timestamp = (String) m.get("timestamp");
+			this.timestamp = Misc.printIsoDateTime(Misc.parseLong((String) m.get("timestamp")));
 			this.endpoints = (List<String>) m.get("endpoints");
 			this.rack = (String) m.get("rack");
 		}
@@ -103,7 +103,7 @@ public class Model {
 		}
 
 		public String getTimestamp() {
-			return timestamp;
+			return this.timestamp;
 		}
 
 		public List<String> getEndpoints() {
@@ -123,6 +123,7 @@ public class Model {
 		public Properties properties;
 		public Boolean deleted;
 		public ArrayList<Partition> partitions = new ArrayList<Partition>();
+		public String comment;
 		
 		public static class Partition {
 			public Integer id;
@@ -130,6 +131,10 @@ public class Model {
 			public ArrayList<Integer> replicas;
 			public ArrayList<Integer> inSyncReplica;
 			public ArrayList<Integer> unsyncReplica;
+			public Position start;
+			public Position end;
+			public String comment;
+			
 			public Integer getId() {
 				return id;
 			}
@@ -144,6 +149,36 @@ public class Model {
 			}
 			public ArrayList<Integer> getUnsyncReplica() {
 				return unsyncReplica;
+			}
+			public Position getStart() {
+				return start;
+			}
+			public Position getEnd() {
+				return end;
+			}
+
+			public String getComment() {
+				return comment;
+			}
+
+			public static class Position {
+				public Long offset;
+				public String timestamp;
+				
+				public Position() {
+				}
+				
+				public Position(Long offset, String timestamp) {
+					this.offset = offset;
+					this.timestamp = timestamp;
+				}
+				
+				public Long getOffset() {
+					return offset;
+				}
+				public String getTimestamp() {
+					return timestamp;
+				}
 			}
 			
 		}
@@ -171,7 +206,11 @@ public class Model {
 		public ArrayList<Partition> getPartitions() {
 			return partitions;
 		}
-		
+		public String getComment() {
+			return comment;
+		}
+
+
 		
 	}
 

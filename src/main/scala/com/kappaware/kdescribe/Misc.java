@@ -16,6 +16,11 @@
 package com.kappaware.kdescribe;
 
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.xml.bind.DatatypeConverter;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlWriter;
@@ -33,6 +38,34 @@ public class Misc {
 			throw new RuntimeException("Exception in YAML generation", e);
 		}
 		return sw.toString();
+	}
+
+	public static String printIsoDateTime(Long ts) {
+		if (ts != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(ts);
+			return DatatypeConverter.printDateTime(c);
+		} else {
+			return null;
+		}
+	}
+
+	static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+	public static String printSimpleIsoDateTime(Long ts) {
+		if (ts != null) {
+			return dateFormat.format(new Date(ts));
+		} else {
+			return null;
+		}
+	}
+
+	public static Long parseLong(String s) {
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 }
