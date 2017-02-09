@@ -24,6 +24,7 @@ import java.util.Properties;
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.fasterxml.jackson.jr.ob.JSON;
 import com.fasterxml.jackson.jr.ob.JSONObjectException;
+import com.kappaware.kdescribe.config.Configuration;
 import com.fasterxml.jackson.jr.ob.JSON.Feature;
 
 public class Model {
@@ -32,7 +33,6 @@ public class Model {
 
 	public ArrayList<Topic> topics;
 
-	
 	static YamlConfig yamlConfig = new YamlConfig();
 	static {
 		yamlConfig.writeConfig.setWriteRootTags(false);
@@ -50,15 +50,28 @@ public class Model {
 	String toJson() throws JSONObjectException, IOException {
 		return djson.asString(this);
 	}
-	
-	
+
+	String toHuman(Configuration config) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Brokers:\n");
+		for (Broker broker : this.brokers) {
+			sb.append(broker.toHuman());
+		}
+		sb.append("Topics:\n");
+		for (Topic topic : this.topics) {
+			sb.append(topic.toHuman(config));
+		}
+		return sb.toString();
+	}
+
 	public static class Broker {
 		// For YAML generation
 		Broker() {
 		}
 
 		/*
-		 * We pass through an intermediate map, in order to be loosely coupled between the zookeeper description and the displayed one  
+		 * We pass through an intermediate map, in order to be loosely coupled
+		 * between the zookeeper description and the displayed one
 		 */
 		@SuppressWarnings("unchecked")
 		Broker(Integer id, String jsonString) throws JSONObjectException, IOException {
@@ -74,6 +87,10 @@ public class Model {
 			this.rack = (String) m.get("rack");
 		}
 
+		String toHuman() {
+			return (String.format("\thosts:%s   id:%d\n", this.host, this.id));
+		}
+
 		public Integer id;
 		public Integer version;
 		public String host;
@@ -82,6 +99,7 @@ public class Model {
 		public String timestamp;
 		public List<String> endpoints;
 		public String rack;
+
 		public Integer getId() {
 			return id;
 		}
@@ -115,7 +133,6 @@ public class Model {
 		}
 	}
 
-	
 	public static class Topic {
 		public String name;
 		public Integer replicationFactor;
@@ -124,7 +141,23 @@ public class Model {
 		public Boolean deleted;
 		public ArrayList<Partition> partitions = new ArrayList<Partition>();
 		public String comment;
-		
+
+		String toHuman(Configuration config) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(String.format("\tname:%-16s  #partition:%2d  #replicats:%2d %s\n", //
+					this.name, //
+					this.partitionFactor, //
+					this.replicationFactor, //
+					(this.deleted != null && this.deleted) ? "DELETED" : "" //
+			));
+			if (config.isPartitions() || config.isTs()) {
+				for (Topic.Partition partition : this.partitions) {
+					sb.append(partition.toHuman());
+				}
+			}
+			return sb.toString();
+		}
+
 		public static class Partition {
 			public Integer id;
 			public Integer leader;
@@ -133,54 +166,72 @@ public class Model {
 			public ArrayList<Integer> unsyncReplica;
 			public Position start;
 			public Position end;
-			public String comment;
-			
+
+			public String toHuman() {
+				StringBuffer sb = new StringBuffer();
+				sb.append(String.format("\t\tid:%2d  leaderId:%2d  #isr:%2d  #usr:%2d", this.id, this.leader,
+						this.inSyncReplica.size(), this.unsyncReplica.size()));
+				sb.append(String.format("  first:%8d", this.start.offset));
+				sb.append(String.format("  last:%8d", this.end.offset));
+				if (this.start.timestamp != null) {
+					sb.append(String.format(" firstTs: %s", this.start.timestamp));
+				}
+				if (this.end.timestamp != null) {
+					sb.append(String.format(" lastTs: %s", this.end.timestamp));
+				}
+				sb.append("\n");
+				return sb.toString();
+			}
+
 			public Integer getId() {
 				return id;
 			}
+
 			public Integer getLeader() {
 				return leader;
 			}
+
 			public ArrayList<Integer> getReplicas() {
 				return replicas;
 			}
+
 			public ArrayList<Integer> getInSyncReplica() {
 				return inSyncReplica;
 			}
+
 			public ArrayList<Integer> getUnsyncReplica() {
 				return unsyncReplica;
 			}
+
 			public Position getStart() {
 				return start;
 			}
+
 			public Position getEnd() {
 				return end;
-			}
-
-			public String getComment() {
-				return comment;
 			}
 
 			public static class Position {
 				public Long offset;
 				public String timestamp;
-				
+
 				public Position() {
 				}
-				
+
 				public Position(Long offset, String timestamp) {
 					this.offset = offset;
 					this.timestamp = timestamp;
 				}
-				
+
 				public Long getOffset() {
 					return offset;
 				}
+
 				public String getTimestamp() {
 					return timestamp;
 				}
 			}
-			
+
 		}
 
 		public String getName() {
@@ -206,12 +257,11 @@ public class Model {
 		public ArrayList<Partition> getPartitions() {
 			return partitions;
 		}
+
 		public String getComment() {
 			return comment;
 		}
 
-
-		
 	}
 
 	public ArrayList<Broker> getBrokers() {

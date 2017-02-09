@@ -23,4 +23,8 @@ public interface Configuration {
 
 	boolean isIncludeAll();
 
+	boolean isPartitions();
+
+	boolean isTs();
+
 }

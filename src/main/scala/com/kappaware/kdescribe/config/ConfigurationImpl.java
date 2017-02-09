@@ -36,6 +36,16 @@ public class ConfigurationImpl implements Configuration {
 	public boolean isIncludeAll() {
 		return parameters.isIncludeAll();
 	}
+
+	@Override
+	public boolean isPartitions() {
+		return parameters.isPartitions();
+	}
+
+	@Override
+	public boolean isTs() {
+		return parameters.isTs();
+	}
 	
 	
 	

@@ -35,6 +35,8 @@ public class Parameters {
 	private String zookeeper;
 	private OutputFormat outputFormat;
 	private boolean includeAll;
+	private boolean partitions;
+	private boolean ts;
 	
 	static OptionParser parser = new OptionParser();
 	static {
@@ -42,15 +44,16 @@ public class Parameters {
 	}
 
 	static OptionSpec<String> ZOOKEEPER_OPT = parser.accepts("zookeeper", "Comma separated values of Zookeeper nodes").withRequiredArg().describedAs("zk1:2181,ek2:2181").ofType(String.class).required();
-	static OptionSpec<OutputFormat> OUTPUT_FORMAT_OPT = parser.accepts("outputFormat", "Output format").withRequiredArg().describedAs("json|yaml").ofType(OutputFormat.class).defaultsTo(OutputFormat.yaml);
+	static OptionSpec<OutputFormat> OUTPUT_FORMAT_OPT = parser.accepts("outputFormat", "Output format").withRequiredArg().describedAs("json|yaml").ofType(OutputFormat.class);
 	static OptionSpec<Void> INCLUDE_ALL_OPT = parser.accepts("includeAll", "All topics, including systems ones");
+	static OptionSpec<Void> PARTITIONS_OPT = parser.accepts("partitions", "List topic partitions");
+	static OptionSpec<Void> TS_OPT = parser.accepts("ts", "List topic partitions with timestamp");
 
 	@SuppressWarnings("serial")
 	private static class MyOptionException extends Exception {
 		public MyOptionException(String message) {
 			super(message);
 		}
-		
 	}
 
 	
@@ -64,6 +67,8 @@ public class Parameters {
 			this.zookeeper = result.valueOf(ZOOKEEPER_OPT);
 			this.outputFormat = result.valueOf(OUTPUT_FORMAT_OPT);
 			this.includeAll = result.has(INCLUDE_ALL_OPT);
+			this.partitions = result.has(PARTITIONS_OPT);
+			this.ts = result.has(TS_OPT);
 
 		} catch (OptionException | MyOptionException t) {
 			throw new ConfigurationException(usage(t.getMessage()));
@@ -99,7 +104,13 @@ public class Parameters {
 		return includeAll;
 	}
 
+	public boolean isPartitions() {
+		return partitions;
+	}
 
+	public boolean isTs() {
+		return ts;
+	}
 
 
 }

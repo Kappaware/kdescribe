@@ -33,7 +33,6 @@ import kafka.server.ConfigType
 /*
  * TODO: Display current broker config
  * TODO: Display consumer groups and lags
- * TODO: Display first/last offset for each partition
  * 
  */
 object Engine {

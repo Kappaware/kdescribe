@@ -25,16 +25,23 @@ import com.kappaware.kdescribe.config.OutputFormat
 object Main {
   private val logger = getLogger
 
+  def toHuman(config : Configuration) : String = {
+    return "Allo"
+  }
+  
   def main(args: Array[String]): Unit = {
 
     try {
       val config: Configuration = new ConfigurationImpl(new Parameters(args))
       val model = Engine.run(config)
-      StartEndSetter.enrich(model)
+      if (config.isTs() || config.isPartitions()) {
+        StartEndSetter.enrich(model, config.isTs())
+      }
       
       val out = config.getOutputFormat match {
         case OutputFormat.json => model.toJson
         case OutputFormat.yaml => model.toYaml
+        case null => model.toHuman(config)
       }
       println(out)
       System.exit(0)
