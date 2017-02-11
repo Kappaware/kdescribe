@@ -6,6 +6,10 @@ A tiny tool to display current Kafka cluster status:
 
 * Topic list
 
+* Optionnally, topic info (Start/end offset and timestamp)
+
+
+***
 ## Usage
 
 kdescribe is provided as rpm packages (Sorry, only this packaging is currently provided. Contribution welcome), on the [release pages](https://github.com/Kappaware/kdescribe/releases).
@@ -16,11 +20,32 @@ Once installed, basic usage is the following:
     
 Here all all the parameters
 
-	Option (* = required)                     Description
-	---------------------                     -----------
-	--includeAll                              All topics, including systems ones
-	--outputFormat <OutputFormat: json|yaml>  Output format (default: yaml)
-	* --zookeeper <zk1:2181,ek2:2181>         Comma separated values of Zookeeper nodes
+	Option (* = required)                          Description
+	---------------------                          -----------
+	--forceProperties                              Force unsafe properties
+	--includeAll                                   All topics, including systems ones
+	--outputFormat <OutputFormat: text|json|yaml>  Output format (default: text)
+	--partitions                                   List topic partitions
+	--property <prop=val>                          Consumer property (May be specified several times)
+	--ts                                           List topic partitions with timestamp
+	* --zookeeper <zk1:2181,ek2:2181>              Comma separated values of Zookeeper nodes
+
+When using without `-partitions` or `-ts` option, kdescribe will only access to zookeeper to grab Kafka related information. If one of these option is activated, kdescribe will also use a Kafka Consumer to get topic start and end information. Note this may increase significantly response time.
+
+***
+## Kerberos support
+
+If kerberos is activated, you will need to define a jaas configuration file as java option. 
+
+This can easely be achieved by uncoment this following line in /etc/kdescribe/setenv.con
+    
+    JOPTS="$JOPTS -Djava.security.auth.login.config=/etc/kdescribe/kafka_client_jaas.conf"
+    
+You can of course modify the `kafka_client_jaas.conf` file to adjust to your needs or target another existing one.
+
+But, keep in mind, you must also perform a `kinit` command, with a principal granting access to all the topics before issuing kdescribe command. For example:
+
+    # kinit -kt /etc/security/keytabs/kafka.service.keytab kafka/my.broker.host@MY.REALM.COM
 
 
 ***
@@ -34,7 +59,7 @@ This role can be used as following;
 	
 	- hosts: cmd_node
 	  vars:
-        kdescribe_rpm_url: https://github.com/Kappaware/kdescribe/releases/download/v0.1.0/kdescribe-0.1.0-1.noarch.rpm
+        kdescribe_rpm_url: https://github.com/Kappaware/kdescribe/releases/download/v0.2.0/kdescribe-0.2.0-1.noarch.rpm
 	  roles:
 	  - kappatools/kdescribe
 	  
