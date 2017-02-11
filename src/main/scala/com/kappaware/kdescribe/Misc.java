@@ -19,6 +19,7 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -66,6 +67,22 @@ public class Misc {
 		} catch (NumberFormatException e) {
 			return null;
 		}
+	}
+	
+	public static String listToString(List<String> l) {
+		StringBuffer sb = new StringBuffer();
+		if( l == null) {
+			sb.append("null");
+		} else {
+		sb.append("[");
+		String sep=" ";
+		for(String s : l) {
+			sb.append(String.format("%s'%s'", sep, s));
+			sep = " ,";
+		}
+		sb.append("]");
+		}
+		return sb.toString();
 	}
 
 }

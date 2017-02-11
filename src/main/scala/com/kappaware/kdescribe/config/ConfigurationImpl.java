@@ -15,11 +15,15 @@
  */
 package com.kappaware.kdescribe.config;
 
+import java.util.Properties;
+
 public class ConfigurationImpl implements Configuration {
 	private Parameters parameters;
+	private Properties consumerProperties;
 	
-	public ConfigurationImpl(Parameters parameters) {
+	public ConfigurationImpl(Parameters parameters) throws ConfigurationException {
 		this.parameters = parameters;
+		this.consumerProperties = ConsumerPropertiesHelper.buildProperties(this.parameters.getProperties(),  this.parameters.isForceProperties());
 	}
 
 	@Override
@@ -46,8 +50,10 @@ public class ConfigurationImpl implements Configuration {
 	public boolean isTs() {
 		return parameters.isTs();
 	}
-	
-	
-	
+
+	@Override
+	public Properties getConsumerProperties() {
+		return consumerProperties;
+	}
 	
 }

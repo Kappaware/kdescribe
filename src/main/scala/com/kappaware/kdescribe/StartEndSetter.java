@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -15,21 +16,34 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.kappaware.kdescribe.config.Configuration;
+
 public class StartEndSetter {
 	static Logger log = LoggerFactory.getLogger(StartEndSetter.class);
 
-	public static void enrich(Model model, boolean withTs) {
+	public static void enrich(Model model, Configuration configuration) {
 		// First, build the brokers connection String
 		StringBuffer sb = new StringBuffer();
 		String sep = "";
 		for (Model.Broker broker : model.brokers) {
-			sb.append(String.format("%s%s:%s", sep, broker.host, broker.port));
+			//sb.append(String.format("%s%s:%s", sep, broker.host, broker.port));
+			sb.append(sep + broker.endpoints.get(0));
 			sep = ",";
 		}
-		log.debug("Brokers:" + sb.toString());
-
-		Properties consumerProperties = new Properties();
-		consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, sb.toString());
+		String brokers = sb.toString();
+		log.debug("Brokers:" + brokers);
+		Properties consumerProperties = configuration.getConsumerProperties();
+		if(consumerProperties.getProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG) == null) {
+			// Will find it from endoint
+			String[] sa = brokers.split(":");
+			String sec = sa[0];
+			if("PLAINTEXTSASL".equals(sec)) {	// Don't kno why Hortonwworks set this value!!
+				sec = "SASL_PLAINTEXT";		
+			}
+			log.debug(String.format("Will set %s to %s", CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, sec));
+			consumerProperties.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, sec);
+		}
+		consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
 		consumerProperties.put(ConsumerConfig.CLIENT_ID_CONFIG, "kdescribe");
 		consumerProperties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 		consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
@@ -54,8 +68,8 @@ public class StartEndSetter {
 							long firstOffset = consumer.position(topicPartition); // Never fail, as 0 if empty
 							consumer.seekToEnd(partAsList);
 							long lastOffset = consumer.position(topicPartition) - 1;
-							log.debug(String.format("Topic: %s -  first offset:%d last offset: %d", topic.name, firstOffset, lastOffset));
-							if (lastOffset < firstOffset || !withTs) {
+							//log.debug(String.format("Topic: %s -  first offset:%d last offset: %d", topic.name, firstOffset, lastOffset));
+							if (lastOffset < firstOffset || !configuration.isTs()) {
 								// Partition is empty
 								topic.partitions.get(p).start = new Model.Topic.Partition.Position(firstOffset, null);
 								topic.partitions.get(p).end = new Model.Topic.Partition.Position(lastOffset, null);

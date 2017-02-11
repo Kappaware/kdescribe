@@ -35,13 +35,13 @@ object Main {
       val config: Configuration = new ConfigurationImpl(new Parameters(args))
       val model = Engine.run(config)
       if (config.isTs() || config.isPartitions()) {
-        StartEndSetter.enrich(model, config.isTs())
+        StartEndSetter.enrich(model, config)
       }
       
       val out = config.getOutputFormat match {
         case OutputFormat.json => model.toJson
         case OutputFormat.yaml => model.toYaml
-        case null => model.toHuman(config)
+        case OutputFormat.text => model.toHuman(config)
       }
       println(out)
       System.exit(0)

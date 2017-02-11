@@ -17,6 +17,7 @@ package com.kappaware.kdescribe;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -88,7 +89,8 @@ public class Model {
 		}
 
 		String toHuman() {
-			return (String.format("\thosts:%s   id:%d\n", this.host, this.id));
+			return (String.format("  hosts:%s   id:%d   endpoints:%s\n", this.host, this.id,
+					Misc.listToString(this.endpoints)));
 		}
 
 		public Integer id;
@@ -144,13 +146,26 @@ public class Model {
 
 		String toHuman(Configuration config) {
 			StringBuffer sb = new StringBuffer();
-			sb.append(String.format("\tname:%-16s  #partition:%2d  #replicats:%2d %s\n", //
+			sb.append(String.format("  name:%-16s  #partition:%2d  #replicats:%2d %s\n", //
 					this.name, //
 					this.partitionFactor, //
 					this.replicationFactor, //
-					(this.deleted != null && this.deleted) ? "DELETED" : "" //
+					(this.deleted != null && this.deleted) ? "TO BE DELETED" : "" //
 			));
+			if (this.properties != null) {
+				if (this.properties.size() > 0) {
+					sb.append("    Properties:\n");
+					Enumeration<?> e = this.properties.propertyNames();
+					while (e.hasMoreElements()) {
+						String p = (String) e.nextElement();
+						sb.append(String.format("      %s: %s\n", p, this.properties.get(p)));
+					}
+				} else {
+					sb.append("    Properties: []\n");
+				}
+			}
 			if (config.isPartitions() || config.isTs()) {
+				sb.append("    Partitions:\n");
 				for (Topic.Partition partition : this.partitions) {
 					sb.append(partition.toHuman());
 				}
@@ -169,7 +184,7 @@ public class Model {
 
 			public String toHuman() {
 				StringBuffer sb = new StringBuffer();
-				sb.append(String.format("\t\tid:%2d  leaderId:%2d  #isr:%2d  #usr:%2d", this.id, this.leader,
+				sb.append(String.format("      id:%2d  leaderId:%2d  #isr:%2d  #usr:%2d", this.id, this.leader,
 						this.inSyncReplica.size(), this.unsyncReplica.size()));
 				sb.append(String.format("  first:%8d", this.start.offset));
 				sb.append(String.format("  last:%8d", this.end.offset));

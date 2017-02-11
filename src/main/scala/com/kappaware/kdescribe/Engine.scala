@@ -56,7 +56,7 @@ object Engine {
       val mTopic = new Model.Topic()
       mTopic.name = topic
       if (zkUtils.pathExists(ZkUtils.getDeleteTopicPath(topic))) {
-        mTopic.deleted; true;
+        mTopic.deleted = true;
       }
       zkUtils.getPartitionAssignmentForTopics(List(topic)).get(topic) match {
         case Some(topicPartitionAssignment) =>

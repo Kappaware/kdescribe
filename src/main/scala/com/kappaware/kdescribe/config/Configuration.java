@@ -15,6 +15,8 @@
  */
 package com.kappaware.kdescribe.config;
 
+import java.util.Properties;
+
 public interface Configuration {
 
 	String getZookeeper();
@@ -26,5 +28,7 @@ public interface Configuration {
 	boolean isPartitions();
 
 	boolean isTs();
+
+	Properties getConsumerProperties();
 
 }
