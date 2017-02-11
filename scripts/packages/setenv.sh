@@ -17,7 +17,7 @@ JOPTS="$JOPTS -Dlog4j.configuration=file:/etc/kdescribe/log4j.xml"
 
 # But, keep in mind, you must also perform a kinit command, with a principal granting access to all the topics. For example:
 #
-# kinit -kt /etc/security/keytabs/kafka.service.keytab kafka/my.broker.hostZ17.BSA.BROADSOFTWARE.COM
+# kinit -kt /etc/security/keytabs/kafka.service.keytab kafka/my.broker.host@MY.REALM.COM
 #
 #
 
