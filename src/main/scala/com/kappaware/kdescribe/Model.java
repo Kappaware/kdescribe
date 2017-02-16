@@ -58,9 +58,13 @@ public class Model {
 		for (Broker broker : this.brokers) {
 			sb.append(broker.toHuman());
 		}
-		sb.append("Topics:\n");
-		for (Topic topic : this.topics) {
-			sb.append(topic.toHuman(config));
+		if (this.topics.size() == 0) {
+			sb.append("Topics: []\n");
+		} else {
+			sb.append("Topics:\n");
+			for (Topic topic : this.topics) {
+				sb.append(topic.toHuman(config));
+			}
 		}
 		return sb.toString();
 	}
@@ -146,7 +150,7 @@ public class Model {
 
 		String toHuman(Configuration config) {
 			StringBuffer sb = new StringBuffer();
-			sb.append(String.format("  name:%-16s  #partition:%2d  #replicats:%2d %s\n", //
+			sb.append(String.format("  '%-16s':  #partition:%2d  #replicat:%2d %s\n", //
 					this.name, //
 					this.partitionFactor, //
 					this.replicationFactor, //
