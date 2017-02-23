@@ -37,7 +37,7 @@ When using without `-partitions` or `-ts` option, kdescribe will only access to 
 
 If kerberos is activated, you will need to define a jaas configuration file as java option. 
 
-This can easely be achieved by uncoment this following line in /etc/kdescribe/setenv.con
+This can easely be achieved by uncomment this following line in `/etc/kdescribe/setenv.sh`
     
     JOPTS="$JOPTS -Djava.security.auth.login.config=/etc/kdescribe/kafka_client_jaas.conf"
     
@@ -63,7 +63,7 @@ This role can be used as following;
 	  roles:
 	  - kappatools/kdescribe
 	  
-> Note `- hosts: zookeepers` at the beginning, which force ansible to grab info about the hosts in the [zookeepers] group, to be able to fulfill this info into jdctopic configuration. Of course, such a group must be defined in the inventory. 
+> Note `- hosts: zookeepers` at the beginning, which force ansible to grab info about the hosts in the `[zookeepers]` group, to be able to fulfill this info into jdctopic configuration. Of course, such a group must be defined in the inventory. In this case, zookeeper information will no longer be required on the command line.
 
 
 ***
